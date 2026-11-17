@@ -82,12 +82,12 @@ def smart_resize(height: int, width: int, factor: int, min_pixels: Optional[int]
 
 
 def to_rgb(pil_image: Image.Image) -> Image.Image:
-      if pil_image.mode == 'RGBA':
-          white_background = Image.new("RGB", pil_image.size, (255, 255, 255))
-          white_background.paste(pil_image, mask=pil_image.split()[3])  # Use alpha channel as mask
-          return white_background
-      else:
-          return pil_image.convert("RGB")
+    if pil_image.mode in ("RGBA", "LA", "PA") or "transparency" in pil_image.info:
+        pil_image = pil_image.convert("RGBA")
+        white_background = Image.new("RGB", pil_image.size, (255, 255, 255))
+        white_background.paste(pil_image, mask=pil_image.split()[3])  # Use alpha channel as mask
+        return white_background
+    return pil_image.convert("RGB")
 
 
 def fetch_image(ele: Dict[str, Union[str, Image.Image]], image_patch_size: int = 14) -> Image.Image:
